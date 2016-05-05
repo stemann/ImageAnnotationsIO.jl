@@ -1,5 +1,5 @@
 using FactCheck
-using LabelMe: Annotation, Source, Object, Polygon
+using LabelMe
 
 facts("==") do
     context("Annotation") do

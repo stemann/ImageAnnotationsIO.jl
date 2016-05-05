@@ -2,6 +2,8 @@ module LabelMe
 
 import Base.==
 
+export Annotation, Source, Object, Polygon, XML
+
 type Polygon
     username::AbstractString
     points::Vector{Tuple{Integer,Integer}}
@@ -56,11 +58,11 @@ end
 type Annotation
     filename::AbstractString
     folder::AbstractString
-    source::Nullable{Source}
+    source::Source
     image_size::Nullable{Tuple{Integer,Integer}}
     objects::Vector{Object}
 
-    Annotation() = new("", "", nothing, nothing, Vector())
+    Annotation() = new("", "", Source(), nothing, Vector())
     Annotation(filename, folder, source, image_size, objects) = new(filename, folder, source, image_size, objects)
 end
 
@@ -71,5 +73,7 @@ function ==(a::Annotation, b::Annotation)
         isequal(a.image_size, b.image_size) &&
         a.objects == b.objects
 end
+
+include("XML.jl")
 
 end # module
