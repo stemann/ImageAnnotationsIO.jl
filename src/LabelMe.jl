@@ -1,0 +1,2 @@
+module LabelMe
+end # module
