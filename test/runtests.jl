@@ -1,2 +1,5 @@
-using LabelMe
-using Base.Test
+using FactCheck
+
+include("LabelMe.jl")
+
+FactCheck.exitstatus()
