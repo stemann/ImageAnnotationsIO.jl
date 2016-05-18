@@ -17,7 +17,7 @@ function annotation(e::XMLElement)
     a.source = source(find_element(e, "source"))
     a.image_size = image_size(find_element(e, "imagesize"))
     for object_element in get_elements_by_tagname(e, "object")
-        append!(a.objects, Object[object(object_element)])
+        push!(a.objects, object(object_element))
     end
     return a
 end
@@ -58,10 +58,10 @@ function polygon(e::XMLElement)
     p = Polygon()
     p.username = element_content(e, "username")
     for pt_element in get_elements_by_tagname(e, "pt")
-        append!(p.points, Tuple{Int64,Int64}[(
+        push!(p.points, (
             parse(Int64, element_content(pt_element, "x")),
             parse(Int64, element_content(pt_element, "y"))
-            )])
+            ))
     end
     return p
 end
