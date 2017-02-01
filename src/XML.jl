@@ -35,7 +35,7 @@ function image_size(e::XMLElement)
     if isnull(nrows) || isnull(ncols)
         return nothing
     end
-    return (nrows, ncols)
+    return (get(nrows), get(ncols))
 end
 
 function object(e::XMLElement)
@@ -126,8 +126,8 @@ function element(p::Polygon)
     add_text(new_child(e, "username"), p.username)
     for pt in p.points
         pt_e = new_child(e, "pt")
-        add_text(new_child(pt_e, "x"), string(pt[1]))        
-        add_text(new_child(pt_e, "y"), string(pt[2]))        
+        add_text(new_child(pt_e, "x"), string(pt[1]))
+        add_text(new_child(pt_e, "y"), string(pt[2]))
     end
     return e
 end
