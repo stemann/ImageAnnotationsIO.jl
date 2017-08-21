@@ -6,7 +6,7 @@ export Annotation, Source, Object, Polygon, XML
 
 type Polygon
     username::AbstractString
-    points::Vector{Tuple{Integer,Integer}}
+    points::Vector{Tuple{Float32,Float32}}
 
     Polygon() = new("", Vector())
     Polygon(username, points) = new(username, points)
