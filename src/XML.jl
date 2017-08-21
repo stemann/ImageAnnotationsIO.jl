@@ -22,6 +22,10 @@ function annotation(e::XMLElement)
     return a
 end
 
+function source(e::Void)
+    return Source()
+end
+
 function source(e::XMLElement)
     s = Source()
     s.sourceImage = element_content(e, "sourceImage")
