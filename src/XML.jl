@@ -63,8 +63,8 @@ function polygon(e::XMLElement)
     p.username = element_content(e, "username")
     for pt_element in get_elements_by_tagname(e, "pt")
         push!(p.points, (
-            parse(Int64, element_content(pt_element, "x")),
-            parse(Int64, element_content(pt_element, "y"))
+            parse(Float32, element_content(pt_element, "x")),
+            parse(Float32, element_content(pt_element, "y"))
             ))
     end
     return p
