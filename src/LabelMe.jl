@@ -30,6 +30,8 @@ type Object
         Vector(), DateTime(), Polygon())
     Object(id, name, deleted, verified, occluded, attributes, parts_parent, parts_children, date, polygon) =
         new(id, name, deleted, verified, occluded, attributes, parts_parent, parts_children, date, polygon)
+    Object(polygon::Polygon) = new(nothing, "", nothing, nothing, nothing, "", nothing,
+        Vector(), DateTime(), polygon)
 end
 
 function ==(a::Object, b::Object)
