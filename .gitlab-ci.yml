@@ -1,0 +1,19 @@
+include:
+  - project: ihp/julia/julia-gitlab-ci-templates
+    ref: v1.3.3
+    file: /templates.gitlab-ci.yaml
+
+test:
+  stage: test
+  parallel:
+    matrix:
+      - CI_JULIA_VERSION: ["0.4"]
+  extends:
+    - .julia.setup
+    - .julia.test
+  script:
+    - julia --version
+    - git config --global url."https://".insteadOf git://
+    - apt-get update
+    - apt-get install -y libxml2
+    - julia -e 'Pkg.clone(pwd()); Pkg.test(basename(pwd()))'
