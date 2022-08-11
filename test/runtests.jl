@@ -1,6 +1,6 @@
-using FactCheck
+using Test
 
-include("LabelMe.jl")
-include("XML.jl")
-
-FactCheck.exitstatus()
+@testset "ImageAnnotationsIO" begin
+    include("LabelMe.jl")
+    include("XML.jl")
+end

@@ -1,6 +1,8 @@
 module XML
 
-using LabelMe
+using ..LabelMe
+
+using Dates
 using LightXML
 
 export load, annotation, source, image_size, object, polygon, element
@@ -22,7 +24,7 @@ function annotation(e::XMLElement)
     return a
 end
 
-function source(e::Void)
+function source(e::Nothing)
     return Source()
 end
 
@@ -36,10 +38,10 @@ end
 function image_size(e::XMLElement)
     nrows = tryparse(Int64, element_content(e, "nrows"))
     ncols = tryparse(Int64, element_content(e, "ncols"))
-    if isnull(nrows) || isnull(ncols)
+    if isnothing(nrows) || isnothing(ncols)
         return nothing
     end
-    return (get(nrows), get(ncols))
+    return (nrows, ncols)
 end
 
 function object(e::XMLElement)
@@ -52,7 +54,7 @@ function object(e::XMLElement)
     o.attributes = element_content(e, "attributes")
     o.parts_parent = tryparse(Int64, element_content(find_element(e, "parts"), "ispartof"))
     hasparts = element_content(find_element(e, "parts"), "hasparts")
-    o.parts_children = [parse(Int64, p) for p in split(hasparts, ','; keep=false)]
+    o.parts_children = [parse(Int64, p) for p in split(hasparts, ','; keepempty=false)]
     o.date = DateTime(element_content(e, "date"), "d-u-yyyy H:M:S")
     o.polygon = polygon(find_element(e, "polygon"))
     return o
@@ -72,7 +74,7 @@ end
 
 function element_content(e::XMLElement, tag::AbstractString)
     first = find_element(e, tag)
-    if first == nothing
+    if first === nothing
         return ""
     end
     return content(first)
@@ -84,8 +86,8 @@ function element(a::Annotation)
     add_text(new_child(e, "folder"), a.folder)
     add_child(e, element(a.source))
     i = new_child(e, "imagesize")
-    add_text(new_child(i, "nrows"), isnull(a.image_size) ? "" : string(get(a.image_size)[1]))
-    add_text(new_child(i, "ncols"), isnull(a.image_size) ? "" : string(get(a.image_size)[2]))
+    add_text(new_child(i, "nrows"), isnothing(a.image_size) ? "" : string(a.image_size[1]))
+    add_text(new_child(i, "ncols"), isnothing(a.image_size) ? "" : string(a.image_size[2]))
     for o in a.objects
         add_child(e, element(o))
     end
@@ -101,23 +103,23 @@ end
 
 function element(o::Object)
     e = new_element("object")
-    if !isnull(o.id)
-        add_text(new_child(e, "id"), string(get(o.id)))
+    if !isnothing(o.id)
+        add_text(new_child(e, "id"), string(o.id))
     end
     add_text(new_child(e, "name"), o.name)
-    if !isnull(o.deleted)
-        add_text(new_child(e, "deleted"), string(UInt8(get(o.deleted))))
+    if !isnothing(o.deleted)
+        add_text(new_child(e, "deleted"), string(UInt8(o.deleted)))
     end
-    if !isnull(o.verified)
-        add_text(new_child(e, "verified"), string(UInt8(get(o.verified))))
+    if !isnothing(o.verified)
+        add_text(new_child(e, "verified"), string(UInt8(o.verified)))
     end
-    if !isnull(o.occluded)
-        add_text(new_child(e, "occluded"), string(UInt8(get(o.occluded))))
+    if !isnothing(o.occluded)
+        add_text(new_child(e, "occluded"), string(UInt8(o.occluded)))
     end
     add_text(new_child(e, "attributes"), o.attributes)
     p = new_child(e, "parts")
-    if !isnull(o.parts_parent)
-        add_text(new_child(p, "ispartof"), string(get(o.parts_parent)))
+    if !isnothing(o.parts_parent)
+        add_text(new_child(p, "ispartof"), string(o.parts_parent))
     end
     add_text(new_child(p, "hasparts"), join(o.parts_children, ","))
     add_text(new_child(e, "date"), Dates.format(o.date, "d-u-yyyy H:M:S"))

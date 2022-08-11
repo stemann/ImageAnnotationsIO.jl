@@ -1,10 +1,12 @@
 module LabelMe
 
+using Dates
+
 import Base.==
 
 export Annotation, Source, Object, Polygon, XML
 
-type Polygon
+mutable struct Polygon
     username::AbstractString
     points::Vector{Tuple{Float32,Float32}}
 
@@ -14,24 +16,24 @@ end
 
 ==(a::Polygon, b::Polygon) = a.username == b.username && a.points == b.points
 
-type Object
-    id::Nullable{Integer}
+mutable struct Object
+    id::Union{Integer, Nothing}
     name::AbstractString
-    deleted::Nullable{Bool}
-    verified::Nullable{Bool}
-    occluded::Nullable{Bool}
+    deleted::Union{Bool, Nothing}
+    verified::Union{Bool, Nothing}
+    occluded::Union{Bool, Nothing}
     attributes::AbstractString
-    parts_parent::Nullable{Integer}
+    parts_parent::Union{Integer, Nothing}
     parts_children::Vector{Integer}
     date::DateTime
     polygon::Polygon
 
     Object() = new(nothing, "", nothing, nothing, nothing, "", nothing,
-        Vector(), DateTime(), Polygon())
+        Vector(), DateTime(0), Polygon())
     Object(id, name, deleted, verified, occluded, attributes, parts_parent, parts_children, date, polygon) =
         new(id, name, deleted, verified, occluded, attributes, parts_parent, parts_children, date, polygon)
     Object(polygon::Polygon) = new(nothing, "", nothing, nothing, nothing, "", nothing,
-        Vector(), DateTime(), polygon)
+        Vector(), DateTime(0), polygon)
 end
 
 function ==(a::Object, b::Object)
@@ -47,7 +49,7 @@ function ==(a::Object, b::Object)
         a.polygon == b.polygon
 end
 
-type Source
+mutable struct Source
     sourceImage::AbstractString
     sourceAnnotation::AbstractString
 
@@ -57,11 +59,11 @@ end
 
 ==(a::Source, b::Source) = a.sourceImage == b.sourceImage && a.sourceAnnotation == b.sourceAnnotation
 
-type Annotation
+mutable struct Annotation
     filename::AbstractString
     folder::AbstractString
     source::Source
-    image_size::Nullable{Tuple{Integer,Integer}}
+    image_size::Union{Tuple{Integer,Integer}, Nothing}
     objects::Vector{Object}
 
     Annotation() = new("", "", Source(), nothing, Vector())
