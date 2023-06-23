@@ -1,6 +1,5 @@
 using Test
 
 @testset "ImageAnnotationsIO" begin
-    include("LabelMe.jl")
-    include("XML.jl")
+    include("labelme_xml_serializer_tests.jl")
 end

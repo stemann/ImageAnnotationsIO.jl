@@ -1,6 +1,6 @@
 include:
   - project: ihp/julia/julia-gitlab-ci-templates
-    ref: v1.3.3
+    ref: v1.5.0
     file: /templates.gitlab-ci.yaml
 
 test:
