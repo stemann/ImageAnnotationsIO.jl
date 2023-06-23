@@ -7,7 +7,7 @@ test:
   stage: test
   parallel:
     matrix:
-      - CI_JULIA_VERSION: ["1.6", "1.7"]
+      - CI_JULIA_VERSION: ["1.6", "1"]
   extends:
     - .julia.setup
     - .julia.test
