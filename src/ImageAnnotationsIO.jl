@@ -6,9 +6,10 @@ using GeometryBasics
 using ImageAnnotations
 using LightXML
 
-export LabelMeXMLSerializer, deserialize, load_dataset_dir, load, load_from_string, save, serialize
+export CVATXMLSerializer, LabelMeXMLSerializer, deserialize, load_dataset_dir, load, load_from_string, save, serialize
 
 include("abstract_annotation_serializer.jl")
+include("cvat_xml_serializer.jl")
 include("labelme_xml_serializer.jl")
 include("utilities.jl")
 
