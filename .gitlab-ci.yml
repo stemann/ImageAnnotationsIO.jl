@@ -2,6 +2,16 @@ include:
   - project: ihp/julia/julia-gitlab-ci-templates
     ref: v1.5.0
     file: /templates.gitlab-ci.yaml
+  - project: ihp/julia/julia-gitlab-ci-templates
+    ref: v1.5.0
+    file: /jobs/analyze_tests.gitlab-ci.yaml
+  - project: ihp/julia/julia-gitlab-ci-templates
+    ref: v1.5.0
+    file: /jobs/format.gitlab-ci.yaml
+
+analyze_tests:
+  variables:
+    CI_JULIA_JET_TARGET_DEFINED_MODULES: "true"
 
 test:
   stage: test
