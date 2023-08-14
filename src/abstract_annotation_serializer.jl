@@ -30,11 +30,13 @@ function load_dataset_dir(
     image_filepaths_handled = String[]
     for file_path in filter(p -> isfile(p) && is_filename_valid(p, serializer), dir_contents)
         annotated_image = load(file_path, serializer)
-        if ensure_image_file_exists
-            image_file_path = joinpath(image_base_path, annotated_image.image_file_path)
-            if !isfile(image_file_path)
-                @warn "Image file $(annotated_image.image_file_path) does not exist @ $image_file_path"
-            end
+        image_file_path = joinpath(image_base_path, annotated_image.image_file_path)
+        if ensure_image_file_exists && !isfile(image_file_path)
+            @warn "Image file $(annotated_image.image_file_path) does not exist @ $image_file_path"
+        end
+        if image_should_be_loaded && (annotated_image.image_width === nothing || annotated_image.image_height === nothing)
+            image = load(image_file_path)
+            annotated_image = AnnotatedImage(annotated_image.annotations, annotated_image.image_file_path, size(image)...)
         end
         push!(annotated_images, annotated_image)
         push!(image_filepaths_handled, annotated_image.image_file_path)
