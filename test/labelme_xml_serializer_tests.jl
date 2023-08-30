@@ -5,8 +5,9 @@ using ImageAnnotations.Dummies
 using ImageAnnotationsIO
 using Test
 
-@testset "LabelMe" begin
+@testset "LabelMeXMLSerializer" begin
     serializer = LabelMeXMLSerializer{Float64}()
+
     @testset "AnnotatedImage" begin
         @testset "empty" begin
             expected = AnnotatedImage()
@@ -17,7 +18,7 @@ using Test
         @testset "non-empty" begin
             expected = AnnotatedImage(
                 PolygonAnnotation([Point2(0.0, 0.0), Point2(0.0, 1.0), Point2(1.0, 0.0)], Label("class"));
-                image_file_path = joinpath("test", "img1.xml"),
+                image_file_path = joinpath("test", "img1.jpeg"),
                 image_width = 640,
                 image_height = 480,
             )
@@ -55,5 +56,13 @@ using Test
             actual = deserialize(AbstractObjectAnnotation, element, serializer)
             @test actual == expected
         end
+    end
+
+    @testset "Polygon serialize/deserialize_polygon" begin
+        serializer = LabelMeXMLSerializer{Float64}()
+        expected = [Point2(0.0, 0.0), Point2(0.0, 1.0), Point2(1.0, 0.0)]
+        element = serialize(expected, serializer)
+        actual = ImageAnnotationsIO.deserialize_polygon(element, serializer)
+        @test actual == expected
     end
 end

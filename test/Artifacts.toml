@@ -1,0 +1,7 @@
+[datumaro]
+git-tree-sha1 = "6443cd18dad24c947c13dd7747ad54988aca644b"
+lazy = true
+
+    [[datumaro.download]]
+    sha256 = "7a735232ffa155e13e917c0bee001d9dec2c2346ddaae811f264112ebce49d5a"
+    url = "https://github.com/openvinotoolkit/datumaro/archive/refs/tags/v1.4.1.tar.gz"

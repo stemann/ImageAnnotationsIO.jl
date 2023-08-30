@@ -4,7 +4,8 @@ using Dates
 using FileIO
 using GeometryBasics
 using ImageAnnotations
-using LightXML
+using OrderedCollections
+using XML
 
 export CVATXMLSerializer, LabelMeXMLSerializer, deserialize, load_dataset_dir, load, load_from_string, save, serialize
 
