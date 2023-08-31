@@ -14,7 +14,7 @@ XML = "72c71f33-b9b6-44de-8c94-c961784809e2"
 [compat]
 FileIO = "1"
 GeometryBasics = "0.4"
-ImageAnnotations = "0.6.2"
+ImageAnnotations = "0.6.3"
 OrderedCollections = "1"
 XML = "0.3"
 julia = "1"

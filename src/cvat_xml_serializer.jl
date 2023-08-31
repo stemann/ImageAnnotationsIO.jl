@@ -301,28 +301,28 @@ function serialize(annotated_image::AnnotatedImage, image_id::Int, serializer::C
     return e
 end
 
-function serialize(annotation::AbstractImageAnnotation{Label{String}}, ::CVATXMLSerializer{TCoordinate}) where {TCoordinate}
+function serialize(annotation::AbstractImageAnnotation{<:AbstractLabel}, ::CVATXMLSerializer{TCoordinate}) where {TCoordinate}
     attributes = OrderedDict(get_label(annotation).attributes)
     xml_attributes = OrderedDict{String, String}()
-    if annotation isa BoundingBoxAnnotation
+    if annotation isa AbstractBoundingBoxAnnotation
         e = XML.Element("box")
-        xml_attributes["xtl"] = string(annotation.rect.origin[1])
-        xml_attributes["ytl"] = string(annotation.rect.origin[2])
-        xml_attributes["xbr"] = string(annotation.rect.origin[1] + annotation.rect.widths[1])
-        xml_attributes["ybr"] = string(annotation.rect.origin[2] + annotation.rect.widths[2])
-    elseif annotation isa ImageAnnotation
-        e = XML.Element("tag")
-    elseif annotation isa OrientedBoundingBoxAnnotation
+        xml_attributes["xtl"] = string(get_top_left(annotation)[1])
+        xml_attributes["ytl"] = string(get_top_left(annotation)[2])
+        xml_attributes["xbr"] = string(get_bottom_right(annotation)[1])
+        xml_attributes["ybr"] = string(get_bottom_right(annotation)[2])
+    elseif annotation isa AbstractOrientedBoundingBoxAnnotation
         e = XML.Element("box")
-        top_left = annotation.center - Point2{TCoordinate}(annotation.width, annotation.height) / 2
+        top_left = get_centroid(annotation) - Point2{TCoordinate}(get_width(annotation), get_height(annotation)) / 2
         xml_attributes["xtl"] = string(top_left[1])
         xml_attributes["ytl"] = string(top_left[2])
-        xml_attributes["xbr"] = string(top_left[1] + annotation.width)
-        xml_attributes["ybr"] = string(top_left[2] + annotation.height)
-        xml_attributes["rotation"] = string(rad2deg(annotation.orientation))
-    elseif annotation isa PolygonAnnotation
+        xml_attributes["xbr"] = string(top_left[1] + get_width(annotation))
+        xml_attributes["ybr"] = string(top_left[2] + get_height(annotation))
+        xml_attributes["rotation"] = string(rad2deg(get_orientation(annotation)))
+    elseif annotation isa AbstractPolygonAnnotation
         e = XML.Element("polygon")
-        xml_attributes["points"] = join(map(v -> "$(v[1]),$(v[2])", annotation.vertices), ';')
+        xml_attributes["points"] = join(map(v -> "$(v[1]),$(v[2])", get_vertices(annotation)), ';')
+    elseif annotation isa AbstractImageAnnotation
+        e = XML.Element("tag")
     else
         @error "Unsupported annotation type: $(typeof(annotation))"
     end
