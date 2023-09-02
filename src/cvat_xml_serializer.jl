@@ -246,7 +246,7 @@ function deserialize(
         if haskey(attributes(element), "rotation")
             center = rect.origin + rect.widths / 2
             width, height = rect.widths
-            orientation = parse(T, element["rotation"])
+            orientation = deg2rad(parse(T, element["rotation"]))
             geometry = (Point2{T}(center...), width, height, orientation)
         else
             geometry = (rect,)
@@ -319,7 +319,7 @@ function serialize(annotation::AbstractImageAnnotation{Label{String}}, ::CVATXML
         xml_attributes["ytl"] = string(top_left[2])
         xml_attributes["xbr"] = string(top_left[1] + annotation.width)
         xml_attributes["ybr"] = string(top_left[2] + annotation.height)
-        xml_attributes["rotation"] = string(annotation.orientation)
+        xml_attributes["rotation"] = string(rad2deg(annotation.orientation))
     elseif annotation isa PolygonAnnotation
         e = XML.Element("polygon")
         xml_attributes["points"] = join(map(v -> "$(v[1]),$(v[2])", annotation.vertices), ';')
