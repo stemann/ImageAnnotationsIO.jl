@@ -6,9 +6,31 @@
 
 ImageAnnotationsIO provides methods for loading and saving [image annotations](https://github.com/IHPSystems/ImageAnnotations.jl) using common formats, like the [CVAT XML annotation format](https://opencv.github.io/cvat/docs/manual/advanced/xml_format/), or the [LabelMe XML format](https://github.com/CSAILVision/LabelMeAnnotationTool/blob/master/Annotations/example_folder/img1.xml).
 
-There is currently support for loading and saving bounding box annotations (for object detection) and image annotations (for image classification).
+There is currently support for loading and saving:
+
+- Bounding box annotations (for object detection).
+- Image annotations (for image classification).
+- Oriented bounding box annotations (for object detection).
+- Polygon annotations (for object detection).
 
 ## Usage
+
+### CVAT XML using decimal floating-point coordinates
+
+The following example loads and saves CVAT XML using decimal floating-point representation of coordinates:
+
+```julia
+using DecFP
+using ImageAnnotationsIO
+
+cvat_xml_serializer = CVATXMLSerializer{Dec128}()
+
+dataset = load(input_path, cvat_xml_serializer)
+
+save(output_path, dataset, cvat_xml_serializer)
+```
+
+### Converting LabelMe XML to CVAT XML
 
 The following example loads a dataset in the form of directories containing LabelMe XML format files, and saves it in the form of a single CVAT XML file.
 
