@@ -1,5 +1,11 @@
 abstract type AbstractAnnotationSerializer end
 
+struct RoundingConfig
+    digits::Int
+    enabled::Bool
+    mode::RoundingMode
+end
+
 const default_image_filename_extensions = collect(
     Iterators.flatten(map(v -> v isa String ? [v] : v, map(s -> FileIO.sym2info[s][2], [:BMP, :EXR, :JPEG, :PNG, :QOI, :TIFF])))
 )

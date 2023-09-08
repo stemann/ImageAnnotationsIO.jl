@@ -80,6 +80,34 @@ using XML
             annotation = deserialize(PolygonAnnotation{Label{String}, Float64}, element, serializer)
             @test annotation == expected
         end
+        @testset "Rounding" begin
+            annotation = BoundingBoxAnnotation(Point2(0.12, 1.23), 2.34, 3.45, Label("car"))
+
+            @testset "BoundingBoxAnnotation" begin
+                serializer = CVATXMLSerializer{Float64}()
+                element = serialize(annotation, serializer)
+                @test attributes(element) == OrderedDict("label" => "car", "xtl" => "0.1", "ytl" => "1.2", "xbr" => "2.5", "ybr" => "4.7")
+            end
+
+            @testset "BoundingBoxAnnotation with 0 digits" begin
+                serializer = CVATXMLSerializer{Float64}(; round_digits = 0, round_enabled = true, round_mode = RoundNearest)
+                element = serialize(annotation, serializer)
+                @test attributes(element) == OrderedDict("label" => "car", "xtl" => "0.0", "ytl" => "1.0", "xbr" => "2.0", "ybr" => "5.0")
+            end
+
+            @testset "BoundingBoxAnnotation with 1 digits" begin
+                serializer = CVATXMLSerializer{Float64}(; round_digits = 1, round_enabled = true, round_mode = RoundNearest)
+                element = serialize(annotation, serializer)
+                @test attributes(element) == OrderedDict("label" => "car", "xtl" => "0.1", "ytl" => "1.2", "xbr" => "2.5", "ybr" => "4.7")
+            end
+
+            @testset "BoundingBoxAnnotation with 2 digits" begin
+                serializer = CVATXMLSerializer{Float64}(; round_digits = 2, round_enabled = true, round_mode = RoundNearest)
+                element = serialize(annotation, serializer)
+                @test attributes(element) ==
+                    OrderedDict("label" => "car", "xtl" => "0.12", "ytl" => "1.23", "xbr" => "2.46", "ybr" => "4.68")
+            end
+        end
     end
 
     @testset "Save/load equivalence for datumaro test assets" begin

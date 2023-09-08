@@ -3,6 +3,7 @@ struct LabelMeXMLSerializer{C <: Real} <: AbstractAnnotationSerializer
     include_annotation_date_attribute::Bool
     include_annotation_id_attribute::Bool
     include_annotation_verified_attribute::Bool
+    rounding_config::RoundingConfig
 end
 
 function LabelMeXMLSerializer{C}(;
@@ -10,9 +11,16 @@ function LabelMeXMLSerializer{C}(;
     include_annotation_date_attribute::Bool = false,
     include_annotation_id_attribute::Bool = false,
     include_annotation_verified_attribute::Bool = false,
+    round_digits::Int = 1,
+    round_enabled::Bool = true,
+    round_mode::RoundingMode = RoundNearest,
 ) where {C}
     return LabelMeXMLSerializer{C}(
-        include_deleted, include_annotation_date_attribute, include_annotation_id_attribute, include_annotation_verified_attribute
+        include_deleted,
+        include_annotation_date_attribute,
+        include_annotation_id_attribute,
+        include_annotation_verified_attribute,
+        RoundingConfig(round_digits, round_enabled, round_mode),
     )
 end
 
@@ -255,11 +263,13 @@ function serialize(annotation::PolygonAnnotation{<:AbstractLabel}, serializer::L
     return e
 end
 
-function serialize(vertices::Vector{Point2{TCoordinate}}, ::LabelMeXMLSerializer{TCoordinate})::XML.AbstractXMLNode where {TCoordinate}
+function serialize(
+    vertices::Vector{Point2{TCoordinate}}, serializer::LabelMeXMLSerializer{TCoordinate}
+)::XML.AbstractXMLNode where {TCoordinate}
     e = XML.Element("polygon")
     for pt in vertices
-        pt_x_e = XML.Element("x", Text(string(pt[1])))
-        pt_y_e = XML.Element("y", Text(string(pt[2])))
+        pt_x_e = XML.Element("x", Text(to_string(pt[1], serializer.rounding_config)))
+        pt_y_e = XML.Element("y", Text(to_string(pt[2], serializer.rounding_config)))
         pt_e = XML.Element("pt", pt_x_e, pt_y_e)
         push!(e, pt_e)
     end

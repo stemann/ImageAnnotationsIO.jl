@@ -35,3 +35,11 @@ function unescape_unicode(s::AbstractString)
     end
     return s
 end
+
+function to_string(x::Real, rounding_config::RoundingConfig)
+    if rounding_config.enabled
+        return string(round(x, rounding_config.mode; digits = rounding_config.digits))
+    else
+        return string(x)
+    end
+end

@@ -1,11 +1,19 @@
 struct CVATXMLSerializer{C <: Real} <: AbstractAnnotationSerializer
     include_image_id::Bool
     include_schema::Bool
+    rounding_config::RoundingConfig
     sort_annotations::Bool
 end
 
-function CVATXMLSerializer{C}(; include_image_id::Bool = false, include_schema::Bool = false, sort_annotations::Bool = true) where {C}
-    return CVATXMLSerializer{C}(include_image_id, include_schema, sort_annotations)
+function CVATXMLSerializer{C}(;
+    include_image_id::Bool = false,
+    include_schema::Bool = false,
+    round_digits::Int = 1,
+    round_enabled::Bool = true,
+    round_mode::RoundingMode = RoundNearest,
+    sort_annotations::Bool = true,
+) where {C}
+    return CVATXMLSerializer{C}(include_image_id, include_schema, RoundingConfig(round_digits, round_enabled, round_mode), sort_annotations)
 end
 
 is_filename_valid(filename::AbstractString, ::CVATXMLSerializer) = endswith(filename, ".xml")
@@ -301,26 +309,32 @@ function serialize(annotated_image::AnnotatedImage, image_id::Int, serializer::C
     return e
 end
 
-function serialize(annotation::AbstractImageAnnotation{<:AbstractLabel}, ::CVATXMLSerializer{TCoordinate}) where {TCoordinate}
+function serialize(annotation::AbstractImageAnnotation{<:AbstractLabel}, serializer::CVATXMLSerializer{TCoordinate}) where {TCoordinate}
     attributes = OrderedDict(get_label(annotation).attributes)
     xml_attributes = OrderedDict{String, String}()
     if annotation isa AbstractBoundingBoxAnnotation
         e = XML.Element("box")
-        xml_attributes["xtl"] = string(get_top_left(annotation)[1])
-        xml_attributes["ytl"] = string(get_top_left(annotation)[2])
-        xml_attributes["xbr"] = string(get_bottom_right(annotation)[1])
-        xml_attributes["ybr"] = string(get_bottom_right(annotation)[2])
+        xml_attributes["xtl"] = to_string(get_top_left(annotation)[1], serializer.rounding_config)
+        xml_attributes["ytl"] = to_string(get_top_left(annotation)[2], serializer.rounding_config)
+        xml_attributes["xbr"] = to_string(get_bottom_right(annotation)[1], serializer.rounding_config)
+        xml_attributes["ybr"] = to_string(get_bottom_right(annotation)[2], serializer.rounding_config)
     elseif annotation isa AbstractOrientedBoundingBoxAnnotation
         e = XML.Element("box")
         top_left = get_centroid(annotation) - Point2{TCoordinate}(get_width(annotation), get_height(annotation)) / 2
-        xml_attributes["xtl"] = string(top_left[1])
-        xml_attributes["ytl"] = string(top_left[2])
-        xml_attributes["xbr"] = string(top_left[1] + get_width(annotation))
-        xml_attributes["ybr"] = string(top_left[2] + get_height(annotation))
-        xml_attributes["rotation"] = string(rad2deg(get_orientation(annotation)))
+        xml_attributes["xtl"] = to_string(top_left[1], serializer.rounding_config)
+        xml_attributes["ytl"] = to_string(top_left[2], serializer.rounding_config)
+        xml_attributes["xbr"] = to_string(top_left[1] + get_width(annotation), serializer.rounding_config)
+        xml_attributes["ybr"] = to_string(top_left[2] + get_height(annotation), serializer.rounding_config)
+        xml_attributes["rotation"] = to_string(rad2deg(get_orientation(annotation)), serializer.rounding_config)
     elseif annotation isa AbstractPolygonAnnotation
         e = XML.Element("polygon")
-        xml_attributes["points"] = join(map(v -> "$(v[1]),$(v[2])", get_vertices(annotation)), ';')
+        xml_attributes["points"] = join(
+            map(
+                v -> "$(to_string(v[1], serializer.rounding_config)),$(to_string(v[2], serializer.rounding_config))",
+                get_vertices(annotation),
+            ),
+            ';',
+        )
     elseif annotation isa AbstractImageAnnotation
         e = XML.Element("tag")
     else
