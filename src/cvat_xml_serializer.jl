@@ -35,7 +35,7 @@ function load_from_xml(doc::XML.AbstractXMLNode, serializer::CVATXMLSerializer):
     return deserialize(ImageAnnotationDataSet, root_element, serializer)
 end
 
-function FileIO.save(filename::AbstractString, data_set::ImageAnnotationDataSet, serializer::CVATXMLSerializer)
+function FileIO.save(filename::AbstractString, data_set::AbstractImageAnnotationDataSet, serializer::CVATXMLSerializer)
     root_element = serialize(data_set, serializer)
     declaration = XML.Declaration(; version = "1.0", encoding = "UTF-8")
     doc = XML.Document(declaration, root_element)
@@ -43,7 +43,7 @@ function FileIO.save(filename::AbstractString, data_set::ImageAnnotationDataSet,
     return nothing
 end
 
-function serialize(data_set::ImageAnnotationDataSet, serializer::CVATXMLSerializer)
+function serialize(data_set::AbstractImageAnnotationDataSet, serializer::CVATXMLSerializer)
     e = XML.Element("annotations", XML.Element("version", XML.Text("1.1")))
     if !isempty(data_set.schema) && serializer.include_schema
         meta_element = XML.Element("meta")
@@ -283,7 +283,7 @@ function deserialize(
     end
 end
 
-function serialize(annotated_image::AnnotatedImage, image_id::Int, serializer::CVATXMLSerializer)
+function serialize(annotated_image::AbstractAnnotatedImage, image_id::Int, serializer::CVATXMLSerializer)
     if isnothing(annotated_image.image_file_path)
         throw(ArgumentError("$(AnnotatedImage).image_file_path cannot be nothing"))
     end

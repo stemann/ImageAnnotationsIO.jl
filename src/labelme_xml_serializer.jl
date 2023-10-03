@@ -43,7 +43,7 @@ function load_from_xml(doc::XML.AbstractXMLNode, serializer::LabelMeXMLSerialize
     return deserialize(AnnotatedImage, root_element, serializer)
 end
 
-function FileIO.save(filename::AbstractString, annotated_image::AnnotatedImage, serializer::LabelMeXMLSerializer)
+function FileIO.save(filename::AbstractString, annotated_image::AbstractAnnotatedImage, serializer::LabelMeXMLSerializer)
     root_element = serialize(annotated_image, serializer)
     declaration = XML.Declaration(; version = "1.0", encoding = "UTF-8")
     doc = XML.Document(declaration, root_element)
@@ -200,7 +200,7 @@ function element_content(e::XML.AbstractXMLNode, tag_name::AbstractString)
     return simplevalue(first_child_element)
 end
 
-function serialize(a::AnnotatedImage, serializer::LabelMeXMLSerializer{C})::XML.AbstractXMLNode where {C}
+function serialize(a::AbstractAnnotatedImage, serializer::LabelMeXMLSerializer{C})::XML.AbstractXMLNode where {C}
     e = XML.Element("annotation")
     push!(e, XML.Element("filename", Text(a.image_file_path === nothing ? "" : basename(a.image_file_path))))
     push!(e, XML.Element("folder", Text(a.image_file_path === nothing ? "" : dirname(a.image_file_path))))
@@ -222,7 +222,9 @@ function serialize(a::AnnotatedImage, serializer::LabelMeXMLSerializer{C})::XML.
     return e
 end
 
-function serialize(annotation::PolygonAnnotation{<:AbstractLabel}, serializer::LabelMeXMLSerializer{C})::XML.AbstractXMLNode where {C}
+function serialize(
+    annotation::AbstractPolygonAnnotation{<:AbstractLabel}, serializer::LabelMeXMLSerializer{C}
+)::XML.AbstractXMLNode where {C}
     e = XML.Element("object")
     push!(e, XML.Element("name", Text(get_label(annotation).value)))
     attributes = deepcopy(get_label(annotation).attributes)
