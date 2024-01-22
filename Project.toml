@@ -1,7 +1,7 @@
 name = "ImageAnnotationsIO"
 uuid = "a23dbe5c-0729-48bd-99f5-ede0f658dfcb"
 authors = ["IHP Systems R&D <research@ihp.dk>"]
-version = "0.2.4"
+version = "0.2.5"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
