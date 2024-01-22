@@ -1,4 +1,5 @@
 struct CVATXMLSerializer{C <: Real} <: AbstractAnnotationSerializer
+    include_confidence::Bool
     include_image_id::Bool
     include_schema::Bool
     rounding_config::RoundingConfig
@@ -6,6 +7,7 @@ struct CVATXMLSerializer{C <: Real} <: AbstractAnnotationSerializer
 end
 
 function CVATXMLSerializer{C}(;
+    include_confidence::Bool = true,
     include_image_id::Bool = false,
     include_schema::Bool = false,
     round_digits::Int = 1,
@@ -13,7 +15,9 @@ function CVATXMLSerializer{C}(;
     round_mode::RoundingMode = RoundNearest,
     sort_annotations::Bool = true,
 ) where {C}
-    return CVATXMLSerializer{C}(include_image_id, include_schema, RoundingConfig(round_digits, round_enabled, round_mode), sort_annotations)
+    return CVATXMLSerializer{C}(
+        include_confidence, include_image_id, include_schema, RoundingConfig(round_digits, round_enabled, round_mode), sort_annotations
+    )
 end
 
 is_filename_valid(filename::AbstractString, ::CVATXMLSerializer) = endswith(filename, ".xml")
@@ -221,6 +225,7 @@ function deserialize(
 ) where {T, TAnnotation <: AbstractImageAnnotation{Label{String}}}
     annotation_attributes = Dict{String, Any}()
     label::Union{String, Nothing} = nothing
+    confidence::Union{Float32, Nothing} = nothing
     geometry = nothing
     for (k, v) in attributes(element)
         if k == "label"
@@ -271,15 +276,19 @@ function deserialize(
             if v isa String
                 v = unescape_unicode(v)
             end
-            annotation_attributes[c["name"]] = v
+            if serializer.include_confidence && c["name"] == "confidence"
+                confidence = v
+            else
+                annotation_attributes[c["name"]] = v
+            end
         else
             @warn "Unexpected child element for $(tag(element)): $(XML.write(c))"
         end
     end
     if !isnothing(geometry)
-        return TAnnotation(geometry..., Label(label, annotation_attributes))
+        return TAnnotation(geometry..., Label(label, annotation_attributes); confidence)
     else
-        return TAnnotation(Label(label, annotation_attributes))
+        return TAnnotation(Label(label, annotation_attributes); confidence)
     end
 end
 
@@ -355,6 +364,12 @@ function serialize(annotation::AbstractImageAnnotation{<:AbstractLabel}, seriali
     end
     for (k, v) in sort(xml_attributes)
         e[k] = v
+    end
+    confidence = get_confidence(annotation)
+    if serializer.include_confidence && !isnothing(confidence)
+        attribute_element = XML.Element("attribute", string(confidence))
+        attribute_element["name"] = "confidence"
+        push!(e, attribute_element)
     end
     for (key, value) in sort(attributes)
         attribute_element = XML.Element("attribute", string(value))

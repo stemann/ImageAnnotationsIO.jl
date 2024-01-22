@@ -80,6 +80,22 @@ using XML
             annotation = deserialize(PolygonAnnotation{Label{String}, Float64}, element, serializer)
             @test annotation == expected
         end
+        @testset "Annotations with confidence" begin
+            @testset "BoundingBoxAnnotation" begin
+                expected = BoundingBoxAnnotation(Point2(0.0, 1.0), 2.0, 3.0, Label("car"); confidence = 0.6f0)
+
+                element = serialize(expected, serializer)
+                annotation = deserialize(BoundingBoxAnnotation{Label{String}, Float64}, element, serializer)
+                @test annotation == expected
+            end
+            @testset "ImageAnnotation" begin
+                expected = ImageAnnotation(Label("car"); confidence = 0.6f0)
+
+                element = serialize(expected, serializer)
+                annotation = deserialize(ImageAnnotation{Label{String}}, element, serializer)
+                @test annotation == expected
+            end
+        end
         @testset "Rounding" begin
             annotation = BoundingBoxAnnotation(Point2(0.12, 1.23), 2.34, 3.45, Label("car"))
 
